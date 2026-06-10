@@ -326,8 +326,9 @@ def absmax_quantize_tensor(tensor, bitwidth):
         x_q = torch.zeros_like(tensor, dtype=storage_dtype)
         return x_q, S
 
-    S = qmax / max_abs
-    x_q = torch.round(tensor * S)
+    S = max_abs / qmax
+
+    x_q = torch.round(tensor / S)
     x_q = torch.clamp(x_q, qmin, qmax)
     x_q = x_q.to(storage_dtype)
 
@@ -335,7 +336,7 @@ def absmax_quantize_tensor(tensor, bitwidth):
 
 
 def dequantize_tensor(x_q, S):
-    return x_q.float() / S
+    return x_q.float() * S
 
 
 def pack_lowbit_signed(q_tensor, bitwidth):
